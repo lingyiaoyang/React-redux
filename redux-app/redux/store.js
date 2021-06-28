@@ -1,17 +1,19 @@
 import { createStore, compose, applyMiddleware } from 'redux';
 import { createWrapper } from 'next-redux-wrapper';
 import rootReducer from './reduces/rootReducer';
+import thunk from 'redux-thunk';
+import createSagaMiddleware from 'redux-saga';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import { watcherSaga } from './sagas/saga';
 
-// const makeStore = createStore(rootReducer);
+const sagaMiddleware = createSagaMiddleware();
 
-const makeStore = () => {
-  const composeEnhancers =
-    typeof window === 'object' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-      ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-          // Specify extension’s options like name, actionsBlacklist, actionsCreators, serialize...
-        })
-      : compose;
+const makeStore = () =>
+  createStore(
+    rootReducer,
+    composeWithDevTools(applyMiddleware(sagaMiddleware, thunk))
+  );
 
-  createStore(rootReducer, composeEnhancers);
-};
+sagaMiddleware.run(watcherSaga);
+
 export const wrapper = createWrapper(makeStore);

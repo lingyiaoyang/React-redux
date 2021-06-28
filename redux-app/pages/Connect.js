@@ -1,18 +1,75 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { setInfo } from '../redux/actions/Index';
+import React, { useState, useEffect } from 'react';
+import { connect, useSelector, useDispatch } from 'react-redux';
+import { fetchRequest, fetchSuccess, fetchFail } from '../redux/actions';
+import { fetchData } from '../apis/user';
 
-const tryConnect = (props) => {
-  const { userInfo } = props;
-  return <div>This is connect to {userInfo.name}</div>;
+const tryConnect = ({ article }) => {
+  console.log(
+    '🚀 -> file: Connect.js -> line 7 -> tryConnect -> article',
+    article
+  );
+
+  const [name, setName] = useState('');
+  const [age, setAge] = useState('');
+  const dispatch = useDispatch();
+
+  // dispatch(fetchSuccess(article));
+
+  function handleButton(e) {
+    e.preventDefault();
+    const identifier = {
+      name: name,
+      age: age,
+    };
+    localStorage.setItem('name', identifier.name);
+    localStorage.setItem('age', identifier.age);
+    dispatch(fetchSuccess(identifier));
+  }
+
+  // const handleButton = (event) => {
+  //   // event.preventDefault();
+
+  // };
+  const identifier = {
+    name: name,
+    age: age,
+  };
+
+  return (
+    <div>
+      This is connect to {JSON.stringify(identifier)}
+      <form onSubmit={handleButton}>
+        <input
+          type='text'
+          placeholder='text'
+          onChange={(e) => setName(e.target.value)}
+          value={name}
+        />
+        <input
+          type='number'
+          placeholder='text'
+          onChange={(e) => setAge(e.target.value)}
+          value={age}
+        />
+
+        <button onClick={(e) => e.preventDefault()}>Click me</button>
+      </form>
+    </div>
+  );
 };
 
-const mapStateToProps = (state) => ({
-  userInfo: state.main,
-});
 
-const mapDispatchToProps = {
-  setInfo: setInfo,
-};
+export async function getServerSideProps() {
+  const { API_URL } = process.env;
 
-export default connect(mapStateToProps, mapDispatchToProps)(tryConnect);
+  const res = await fetch(`${API_URL}/articles`);
+  const article = await res.json();
+
+  return {
+    props: {
+      article: article,
+    },
+  };
+}
+
+export default tryConnect;

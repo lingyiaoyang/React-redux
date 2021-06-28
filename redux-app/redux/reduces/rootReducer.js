@@ -1,8 +1,11 @@
 import { combineReducers } from 'redux';
-import main from './main';
+import { fetchingUser } from './main';
+import { userRegister, userLogin } from './userForm';
 
 const rootReducer = combineReducers({
-  main: main,
+  main: fetchingUser,
+  // LoginForm: userLogin,
+  // RegisterForm: userRegister,
 });
 
 export default rootReducer;
